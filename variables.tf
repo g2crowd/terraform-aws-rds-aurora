@@ -111,13 +111,12 @@ variable "database_name" {
 variable "master_username" {
   description = "Username for the master DB user"
   type        = string
-  default     = "root"
 }
 
 variable "create_random_password" {
   description = "Determines whether to create random password for RDS primary cluster"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "random_password_length" {
@@ -208,6 +207,24 @@ variable "db_cluster_db_instance_parameter_group_name" {
   description = "Instance parameter group to associate with all instances of the DB cluster. The `db_cluster_db_instance_parameter_group_name` is only valid in combination with `allow_major_version_upgrade`"
   type        = string
   default     = null
+}
+
+variable "family" {
+  description = "The family of the DB parameter group"
+  type        = string
+  default     = null
+}
+
+variable "parameters" {
+  description = "A list of DB parameter maps to apply"
+  type        = list(map(string))
+  default     = []
+}
+
+variable "cluster_parameters" {
+  description = "A list of DB cluster parameter maps to apply"
+  type        = list(map(string))
+  default     = []
 }
 
 variable "iam_database_authentication_enabled" {

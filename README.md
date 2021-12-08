@@ -11,6 +11,8 @@ Terraform module which creates AWS RDS Aurora resources.
 - Import from S3
 - Fine grained control of individual cluster instances
 - Custom endpoints
+- Cluster parameter group
+- Parameter group
 
 ## Usage
 

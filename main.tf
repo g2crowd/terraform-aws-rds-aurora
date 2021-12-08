@@ -42,6 +42,44 @@ resource "aws_db_subnet_group" "this" {
   tags = var.tags
 }
 
+resource "aws_rds_cluster_parameter_group" "this" {
+  name        = var.name
+  family      = var.family
+
+  dynamic "parameter" {
+    for_each = var.cluster_parameters
+    content {
+      name         = parameter.value.name
+      value        = parameter.value.value
+      apply_method = lookup(parameter.value, "apply_method", null)
+    }
+  }
+
+  tags = var.tags
+}
+
+resource "aws_db_parameter_group" "this" {
+  for_each = var.create_cluster && !local.is_serverless ? var.instances : {}
+
+  name        = "${var.name}-${each.key}"
+  family      = var.family
+
+  dynamic "parameter" {
+    for_each = lookup(each.value, "parameter", {})
+    content {
+      name         = parameter.value.name
+      value        = parameter.value.value
+      apply_method = lookup(parameter.value, "apply_method", null)
+    }
+  }
+
+  tags = var.tags
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 resource "aws_rds_cluster" "this" {
   count = var.create_cluster ? 1 : 0
 
@@ -75,7 +113,7 @@ resource "aws_rds_cluster" "this" {
   snapshot_identifier                 = var.snapshot_identifier
   storage_encrypted                   = var.storage_encrypted
   apply_immediately                   = var.apply_immediately
-  db_cluster_parameter_group_name     = var.db_cluster_parameter_group_name
+  db_cluster_parameter_group_name     = aws_rds_cluster_parameter_group.this.id
   db_instance_parameter_group_name    = var.allow_major_version_upgrade ? var.db_cluster_db_instance_parameter_group_name : null
   iam_database_authentication_enabled = var.iam_database_authentication_enabled
   backtrack_window                    = local.backtrack_window
@@ -149,7 +187,7 @@ resource "aws_rds_cluster_instance" "this" {
   instance_class                        = lookup(each.value, "instance_class", var.instance_class)
   publicly_accessible                   = lookup(each.value, "publicly_accessible", var.publicly_accessible)
   db_subnet_group_name                  = local.db_subnet_group_name
-  db_parameter_group_name               = lookup(each.value, "db_parameter_group_name", var.db_parameter_group_name)
+  db_parameter_group_name               = aws_db_parameter_group.this[each.key].id
   apply_immediately                     = lookup(each.value, "apply_immediately", var.apply_immediately)
   monitoring_role_arn                   = local.rds_enhanced_monitoring_arn
   monitoring_interval                   = lookup(each.value, "monitoring_interval", var.monitoring_interval)
