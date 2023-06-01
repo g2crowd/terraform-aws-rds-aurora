@@ -126,6 +126,11 @@ resource "aws_rds_cluster" "this" {
     delete = lookup(var.cluster_timeouts, "delete", null)
   }
 
+  serverlessv2_scaling_configuration {
+    max_capacity = var.serverlessv2_max_capacity
+    min_capacity = var.serverlessv2_min_capacity
+  }
+
   dynamic "scaling_configuration" {
     for_each = length(keys(var.scaling_configuration)) == 0 || !local.is_serverless ? [] : [var.scaling_configuration]
 
@@ -205,11 +210,6 @@ resource "aws_rds_cluster_instance" "this" {
     create = lookup(var.instance_timeouts, "create", null)
     update = lookup(var.instance_timeouts, "update", null)
     delete = lookup(var.instance_timeouts, "delete", null)
-  }
-
-  serverlessv2_scaling_configuration {
-    max_capacity = var.serverlessv2_max_capacity
-    min_capacity = var.serverlessv2_min_capacity
   }
 
   # TODO - not sure why this is failing and throwing type mis-match errors
