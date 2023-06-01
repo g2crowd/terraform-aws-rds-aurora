@@ -520,3 +520,15 @@ variable "security_group_egress_rules" {
   type        = map(any)
   default     = {}
 }
+
+variable "serverlessv2_min_capacity" {
+  description = "Minimum capacity for serverless RDS cluster"
+  type        = number
+  default     = 1
+}
+
+variable "serverlessv2_max_capacity" {
+  description = "Maximium capacity for serverless RDS cluster"
+  type        = number
+  default     = 10
+}

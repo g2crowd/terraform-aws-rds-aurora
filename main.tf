@@ -207,6 +207,11 @@ resource "aws_rds_cluster_instance" "this" {
     delete = lookup(var.instance_timeouts, "delete", null)
   }
 
+  serverlessv2_scaling_configuration {
+    max_capacity = var.serverlessv2_max_capacity
+    min_capacity = var.serverlessv2_min_capacity
+  }
+
   # TODO - not sure why this is failing and throwing type mis-match errors
   # tags = merge(var.tags, lookup(each.value, "tags", {}))
   tags = var.tags
