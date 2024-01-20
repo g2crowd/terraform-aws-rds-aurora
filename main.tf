@@ -43,7 +43,7 @@ resource "aws_db_subnet_group" "this" {
 }
 
 resource "aws_rds_cluster_parameter_group" "this" {
-  name        = var.name
+  name        = "${var.name}-${var.family}"
   family      = var.family
 
   dynamic "parameter" {
@@ -61,7 +61,7 @@ resource "aws_rds_cluster_parameter_group" "this" {
 resource "aws_db_parameter_group" "this" {
   for_each = var.create_cluster && !local.is_serverless ? var.instances : {}
 
-  name        = "${var.name}-${each.key}"
+  name        = "${var.name}-${var.family}-${each.key}"
   family      = var.family
 
   dynamic "parameter" {
